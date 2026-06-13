@@ -11,7 +11,8 @@
     "test": "npm test --workspace=harness",
     "start": "npm start --workspace=harness",
     "seed:tape": "node scripts/seed-tape.js",
-    "replay": "node scripts/replay.js"
+    "replay": "node scripts/replay.js",
+    "package:extension": "node scripts/package-extension.js"
   },
   "engines": {
     "node": ">=20"

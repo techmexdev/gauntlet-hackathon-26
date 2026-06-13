@@ -46,6 +46,14 @@ See [HARNESS.md](./HARNESS.md) for pillars, checkpoints, cascade rules, and API 
 
 Pin the extension action to open the side panel quickly.
 
+### Package for sharing
+
+```bash
+npm run package:extension
+```
+
+Creates `dist/signal-density-filter-extension-v0.1.0.zip` (gitignored). Recipients unzip and load unpacked in Chrome.
+
 ## Demo without live X
 
 Record and replay a fixed post corpus for rehearsals:
