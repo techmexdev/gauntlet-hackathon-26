@@ -1,0 +1,71 @@
+.sdf-sort-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgb(47, 51, 54);
+  background: rgb(0, 0, 0);
+}
+
+.sdf-sort-bar-hidden {
+  display: none !important;
+}
+
+.sdf-sort-label {
+  font: 700 13px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: rgb(113, 118, 123);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sdf-sort-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 9999px;
+  background: rgb(32, 35, 39);
+  border: 1px solid rgb(47, 51, 54);
+}
+
+.sdf-sort-btn {
+  border: 0;
+  background: transparent;
+  color: rgb(113, 118, 123);
+  font: 700 13px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  padding: 7px 12px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition:
+    color var(--sdf-transition),
+    background var(--sdf-transition);
+}
+
+.sdf-sort-btn:hover {
+  color: rgb(231, 233, 234);
+}
+
+.sdf-sort-btn.active {
+  color: rgb(231, 233, 234);
+  background: rgb(47, 51, 54);
+}
+
+.sdf-sort-btn.active[data-sort='signal'] {
+  color: var(--sdf-show);
+  background: var(--sdf-show-bg);
+}
+
+.sdf-sort-btn:focus-visible {
+  outline: 2px solid var(--sdf-accent);
+  outline-offset: 1px;
+}
+
+.sdf-sorted-stream {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.sdf-sorted-stream [data-sdf-sort-rank]:not([data-sdf-sort-rank='']) {
+  transition: order var(--sdf-transition, 160ms ease);
+}

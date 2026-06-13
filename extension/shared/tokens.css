@@ -1,0 +1,35 @@
+:root {
+  --sdf-bg-base: #0f1419;
+  --sdf-bg-elevated: #16181c;
+  --sdf-bg-overlay: #15202b;
+  --sdf-border: #2f3336;
+  --sdf-border-muted: #38444d;
+  --sdf-text: #e7e9ea;
+  --sdf-text-muted: #71767b;
+  --sdf-text-subtle: #536471;
+
+  --sdf-show: #00ba7c;
+  --sdf-show-bg: #00ba7c26;
+  --sdf-hide: #f4212e;
+  --sdf-hide-bg: #f4212e26;
+  --sdf-hold: #ffd400;
+  --sdf-hold-bg: #ffd40026;
+  --sdf-block: #536471;
+  --sdf-block-bg: #53647133;
+  --sdf-accent: #1d9bf0;
+  --sdf-accent-hover: #1a8cd8;
+
+  --sdf-radius-sm: 6px;
+  --sdf-radius-md: 8px;
+  --sdf-radius-lg: 12px;
+  --sdf-radius-pill: 999px;
+
+  --sdf-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --sdf-font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  --sdf-shadow-panel: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --sdf-transition: 150ms ease;
+
+  --sdf-z-hud: 2147483646;
+  --sdf-z-drawer: 2147483647;
+}

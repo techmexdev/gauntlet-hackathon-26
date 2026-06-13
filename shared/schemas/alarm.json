@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "alarm.json",
+  "title": "Alarm",
+  "type": "object",
+  "required": [
+    "alarm_id",
+    "session_id",
+    "type",
+    "severity",
+    "message",
+    "recommended_action",
+    "created_at"
+  ],
+  "properties": {
+    "alarm_id": { "type": "string", "minLength": 1 },
+    "session_id": { "type": "string", "minLength": 1 },
+    "type": {
+      "type": "string",
+      "enum": [
+        "schema_violation",
+        "high_block_rate",
+        "agent_latency",
+        "confidence_collapse",
+        "escalation_queue_full"
+      ]
+    },
+    "severity": { "type": "string", "enum": ["info", "warning", "critical"] },
+    "message": { "type": "string", "minLength": 1 },
+    "recommended_action": { "type": "string", "minLength": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "bundle_id": { "type": "string" },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

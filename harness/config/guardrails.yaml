@@ -1,0 +1,19 @@
+min_text_length: 20
+duplicate_window_hours: 24
+stale_post_hours: 72
+
+blocked_accounts:
+  - spammer_demo
+  - bait_bot_99
+
+spam_domains:
+  - bit.ly/spam
+  - free-crypto.scam
+
+trusted_domains:
+  - example.com
+
+engagement_bait_patterns:
+  - "(?i)\\b(like if you agree|retweet if|follow for follow|smash that like)\\b"
+  - "(?i)\\b(giveaway|airdrop|free money|dm me for)\\b"
+  - "(?i)\\b(you won't believe|thread 🧵|hot take incoming)\\b"

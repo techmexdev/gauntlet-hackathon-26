@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "agent-output.json",
+  "title": "AgentOutput",
+  "type": "object",
+  "required": [
+    "signal_score",
+    "category",
+    "reasons",
+    "confidence",
+    "escalate"
+  ],
+  "properties": {
+    "signal_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "category": {
+      "type": "string",
+      "enum": ["news", "analysis", "engagement_bait", "personal", "promo", "noise"]
+    },
+    "reasons": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "escalate": { "type": "boolean" },
+    "explanation": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": false
+}

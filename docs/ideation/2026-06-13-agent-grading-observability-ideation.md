@@ -22,7 +22,9 @@ mode: repo-grounded
 - Alarms fire (`agent_latency`, `confidence_collapse`) without bundle-linked evidence in UI
 - Architecture boundary: agent scores; harness decides — UI conflates the two today
 
-**External context:** Langfuse/LangSmith trajectory scoring; LangGraph checkpoint gates; AgentTrace progressive disclosure; moderation cascades with structured rationale; CI/CD gate-status badges; airport-security lane replay analogies.
+**External context:** Langfuse/LangSmith trajectory scoring; LangGraph checkpoint gates; AgentTrace progressive disclosure; moderation cascades with structured rationale; CI/CD gate-status badges; airport-security lane replay analogies; shadow-mode rollout (llmtrace, Claude Lab); ECE calibration; exception-first audit; FIM One stub-first disclosure; Witness trace diff.
+
+**Continuation note (2026-06-13):** Second ideation pass — 7 new survivors (#8–#14) below. Prior #1–#7 unchanged.
 
 ## Topic Axes
 
@@ -50,7 +52,7 @@ mode: repo-grounded
 
 **Complexity:** Low–Medium
 
-**Status:** Unexplored
+**Status:** Explored → `docs/brainstorms/2026-06-13-grading-story-row-requirements.md`
 
 ---
 
@@ -70,7 +72,7 @@ mode: repo-grounded
 
 **Complexity:** Medium
 
-**Status:** Unexplored
+**Status:** Explored → `docs/brainstorms/2026-06-13-grading-story-row-requirements.md`
 
 ---
 
@@ -90,7 +92,7 @@ mode: repo-grounded
 
 **Complexity:** Medium
 
-**Status:** Unexplored
+**Status:** Explored → `docs/brainstorms/2026-06-13-grading-story-row-requirements.md`
 
 ---
 
@@ -110,7 +112,7 @@ mode: repo-grounded
 
 **Complexity:** Medium
 
-**Status:** Unexplored
+**Status:** Explored → `docs/brainstorms/2026-06-13-grading-story-row-requirements.md`
 
 ---
 
@@ -174,6 +176,146 @@ mode: repo-grounded
 
 ---
 
+### 8. Shadow Grade Whispers
+
+**Description:** For heuristic-only commits, optionally run a non-blocking **shadow scorer** (LLM or alternate heuristic profile) that never affects CP-5. Store shadow output in SQLite keyed by `bundle_id`; surface on expand as a ghost card: `committed: H:47 SHOW` vs `shadow: L:58 would-HIDE`. Sample rate configurable or on-demand for gray-band near-misses.
+
+**Axis:** Agent scoring output visibility · Cascade path visibility
+
+**Basis:** `external:` shadow grading / champion–challenger moderation (llmtrace, Claude Lab shadow mode) · `direct:` `runCascade()` branches but only one path commits; CP-2 stores one `agentOutput`
+
+**Rationale:** Operators see grading uncertainty the cascade *avoided*, not just the path taken. Demo beat: "We didn't call the LLM — but here's what it would have said." Distinct from cascade fingerprint (#2), which labels the path taken only.
+
+**Downsides:** Extra LLM cost if sampled aggressively; must clearly label shadow as non-enforcing; heuristic-only path needs empty-state copy.
+
+**Confidence:** 86%
+
+**Complexity:** Medium
+
+**Status:** Unexplored
+
+---
+
+### 9. Human Oversight as First-Class SSE Events
+
+**Description:** When an operator resolves a held post (`sdf:resolve-held` → harness), emit a new **`oversight`** SSE type: `{ bundle_id, actor: 'operator', prior: HOLD, resolution: SHOW|HIDE, dwell_ms, optional_note }`. Side panel logs oversight beside agent decisions; optional brief glyph on timeline overlay during HITL beat.
+
+**Axis:** Decision/commit rationale · Anomaly & grading health
+
+**Basis:** `direct:` held resolution exists in overlay flow but isn't in the four SSE types (`decision`, `alarm`, `checkpoint`, `held_count`) · `external:` EU AI Act / HITL audit patterns — human corrections as distinct telemetry
+
+**Rationale:** The harness decides; humans correct. Without oversight events, HOLD→SHOW looks like the agent changed its mind. Closes the HITL demo beat (~4:00) with stream-visible proof of human-in-the-loop.
+
+**Downsides:** New SSE type + schema; must sync with held-queue REST hydration; optional note field needs UX for quick resolve vs annotated resolve.
+
+**Confidence:** 88%
+
+**Complexity:** Medium
+
+**Status:** Unexplored
+
+---
+
+### 10. Policy Regime Stamp Row
+
+**Description:** At commit time, stamp each decision with immutable **policy fingerprints**: `guardrails_yaml_hash`, `cascade_rules_version`, `show_threshold`, `gray_band` bounds. Render a tiny `policy@v2.1` chip on every row; mixed stamps in one session flag "rule change mid-flight" during replay or config edits.
+
+**Axis:** Decision/commit rationale
+
+**Basis:** `direct:` `commitDecision()` uses threshold 40 and `cascade.js` band rules with no provenance in SSE · `external:` policy version stamps / adverse-action "model card at decision time"
+
+**Rationale:** "Why did this flip?" is often "rules changed," not "agent changed." Separates grading drift from policy drift — complements commit explainer (#4) with *which policy* was active, not just *which branch* fired.
+
+**Downsides:** Hash computation at startup/config reload; chip UI noise if policy never changes mid-session; must document hash algorithm for reproducibility.
+
+**Confidence:** 85%
+
+**Complexity:** Low–Medium
+
+**Status:** Unexplored
+
+---
+
+### 11. Trace Projection Depths (`summary` | `grading` | `full`)
+
+**Description:** One `getBundleTrace()` assembler; REST accepts `?depth=` and returns layered projections — row chips need `summary` (score, worker, cascade fingerprint), expand needs `grading` (+ reasons, commit branch, heuristic pre-score), forensics need `full` (+ raw CP-2 payload). Same route, same store query, three response shapes.
+
+**Axis:** Checkpoint gate narrative (compounding)
+
+**Basis:** `direct:` plan 006 trace object aggregates bundle, checkpoints, decision, alarms, held; plan 004 publish-helper anti-drift pattern; deferred Filtered Posts / alarm / held expand all need same bundle story at different detail levels
+
+**Rationale:** Highest-leverage extension to bundle trace API (#6). Every new "explain this post" surface picks a depth instead of a new endpoint. One assembler → checkpoint accordion, Filtered expand, alarm drawer, held forensics, timeline tooltip.
+
+**Downsides:** Response-shape versioning; route must validate depth param; assembler complexity grows with each new field in disclosure manifest.
+
+**Confidence:** 90%
+
+**Complexity:** Medium
+
+**Status:** Unexplored
+
+---
+
+### 12. Trace Digest Watermark on Every Row
+
+**Description:** Every decision SSE carries a ~40-byte **`trace_digest`**: `{ stages_passed, failed_at, llm_invoked, disagreement_delta, anomaly_flags[] }`. Full CP-0..CP-5 body fetched on expand via trace API (#6). Digest renders as always-visible 6-dot micro-rail on every Recent Decisions / Filtered Posts row — universal *index*, not universal *payload*.
+
+**Axis:** Checkpoint gate narrative · Cascade path visibility
+
+**Basis:** `reasoned:` rejected "embed full trace in every decision SSE" for bloat; plan 006 trace API is on-demand body · `external:` FIM One stub-first progressive disclosure
+
+**Rationale:** Operator always sees "did this post complete all gates?" at a glance; expand cost paid only when investigating. Compounds with cascade fingerprint (#2) and trace depths (#11) without repeating either.
+
+**Downsides:** Digest schema must stay stable; 6-dot UI needs legend; digest can drift from trace API if not generated from same assembler.
+
+**Confidence:** 87%
+
+**Complexity:** Medium
+
+**Status:** Unexplored
+
+---
+
+### 13. In-Feed Ghost Receipt Trace
+
+**Description:** When overlay hides a post (HIDE/BLOCK), the collapsed ghost on the X timeline shows a **receipt strip** — score, worker chip, top reason, CP-fail icon. Click ghost → inline trace accordion (CP gate summary + agent rationale) via `fetch_trace`, without opening the side panel.
+
+**Axis:** Decision/commit rationale · Agent scoring output visibility
+
+**Basis:** `direct:` plan 004 hidden-posts observability is sidebar-only; overlay removes DOM nodes — operator looks at ghost when content vanishes · `direct:` `commitDecision()` truncates reasons to 2 for SHOW/HIDE
+
+**Rationale:** Answers "why did that tweet disappear?" at the moment of disappearance — strongest demo beat for governed filtering. Breaks assumption that observability = side panel only.
+
+**Downsides:** Content-script complexity; inline accordion must not break X layout; shares fetch path with plan 006; ghost may be easy to miss without visual polish.
+
+**Confidence:** 84%
+
+**Complexity:** Medium–High
+
+**Status:** Unexplored
+
+---
+
+### 14. Strictness Regime Dial + Session Receipt
+
+**Description:** Session-level **strictness knob** (Rehearsal / Demo / Strict) widens or narrows gray band and optional `forceLlm` rules. One `regime_change` event on toggle; every decision carries `regime_id`. Sidebar vitals: "14 posts scored under Strict since 2:04pm" and LLM invocation rate shift after toggle.
+
+**Axis:** Cascade path visibility · Anomaly & grading health
+
+**Basis:** `direct:` cascade thresholds are env-static today; no UI for "how aggressive is routing?" · `external:` FlexGuard strictness-adaptive thresholds; strictness regime dial patterns
+
+**Rationale:** "Did the LLM run?" depends on regime. Dial makes the cascade legible as a *live policy choice*, not hidden code — demo narrators can tighten mid-session and show observability respond.
+
+**Downsides:** Regime definitions must stay in sync with `cascade.js`; mid-session toggle complicates policy stamp (#10); risk of operator confusion if not labeled clearly.
+
+**Confidence:** 82%
+
+**Complexity:** Medium
+
+**Status:** Unexplored
+
+---
+
 ## Rejection Summary
 
 | # | Idea | Reason Rejected |
@@ -193,7 +335,47 @@ mode: repo-grounded
 | 13 | Confidence–Score Divergence filter | Narrow UX affordance; subset of #1 confidence bar |
 | 14 | Escalation Queue Resolution workflow | Overlaps held-queue brainstorm; observe-and-jump scope already defined |
 | 15 | Truncation Diff (shown vs dropped) | Stopgap if #1 ships; redundant once full reasons exposed |
+| 16 | Shadow Would-Block Ledger (session counters) | Overlaps #14 regime + #5 vitals; weaker than per-bundle shadow (#8) |
+| 17 | Escalation Funnel SLO strip | Subsumed by #5 grading health + #14 regime receipt |
+| 18 | Agent vs Harness Provenance Split (two lanes) | Overlaps #4 commit explainer + #7 diff panel |
+| 19 | Stub-First Checkpoint Drill-Down | Overlaps #3 per-bundle trace + plan 006 accordion |
+| 20 | Exception-First Alarm Queue | Overlaps #5 alarm-bundle correlation + #6 trace |
+| 21 | Trace Diff Compare (counterfactual pair) | Overlaps #7 heuristic↔LLM diff; full replay lab rejected |
+| 22 | Gray-Band ECE Drift Widget | Overlaps #5 session vitals + #14 regime; narrow statistical UX |
+| 23 | Exceptions-Only Side Panel | Disrupts rehearsed demo beats (Recent Decisions, Filtered Posts) |
+| 24 | Silent Success Checkpoints | Undermines Checkpoints demo beat (~2:30) — gates must be visible |
+| 25 | Auto-Commit Receipt (one-line) | Lighter #4 variant — brainstorm copy, not structured explainer |
+| 26 | Self-Promoting Anomaly Bundles | Partial overlap #5; spotlight strip is UX polish on existing rows |
+| 27 | Threshold Distance Badge | Tactical subset of #4; better as render detail inside commit explainer |
+| 28 | Grading Pulse Digest | Session aggregate overlaps #5 vitals strip |
+| 29 | Split Agent vs Harness Columns | Layout variant of #4; not additive product surface |
+| 30 | Prefetch-on-Anomaly Hover Cards | Implementation pattern for #6+#11; not standalone idea |
+| 31 | Exception-First Audit Inbox | Overlaps #23 + #5; empty-inbox narrative conflicts with checkpoint demo |
+| 32 | Session Calibration Strip (ECE-lite) | Overlaps #5; requires held-resolution ground truth not yet reliable |
+| 33 | Trace Stub Glyphs on timeline | Merged into #12 digest watermark + #13 ghost receipt |
+| 34 | commit_branch_id Enum alone | Compounds with #4 — ship as part of commit explainer, not separate |
+| 35 | SW Trace Cache / renderTraceSlice | Implementation details for plan 006 consumers |
+| 36 | Grading Disclosure Manifest | CI/meta artifact; low demo-visible value for hackathon |
+| 37 | activity_spans[] on trace | Compounds with #11; defer to trace API schema design |
+| 38 | anchor_bundle_id on alarms | Narrower slice of #5 alarm provenance |
+| 39 | Background Trace Prefetch | Implementation optimization for #11+#12 |
+| 40 | Shadow Lane Receipt (path-not-taken) | Zero-cost variant of #8; ship as empty-state inside shadow whispers |
+| 41 | Checkpoint Glyph Strip | Lighter #12 digest; subsumed by digest watermark on rows |
+| 42 | Material Factor Stack | Heuristic signed-deltas only; LLM reasons unquantified — narrow |
+| 43 | Live vs Replay Trace Diff | High value but demo-adjacent; brainstorm follow-on to #6 |
+| 44 | Oversight Freeze Capsule | Subsumed by #5 + #6 trace alarms[] |
+| 45 | Rule Match Receipt | Good complement to #4; defer to commit explainer field set |
+| 46 | Triage Tag vs Chart layers | UI pattern inside #1 rationale surface |
+| 47 | In-Feed CP Gate Rail (all posts) | Overlaps #13; all-post rail is noisier than ghost-on-hide |
+| 48 | REST Pull Grading Journal | Architectural pivot from SSE; out of scope for side-panel-first strategy |
+| 49 | Silent Until Exception panel mode | Overlaps #23; conflicts with demo rehearsal |
+| 50 | Sampled Trace Spotlight | Scale story; hackathon volume doesn't justify |
+| 51 | Agent Operator Note (LLM prose) | Requires worker contract change; risks stale/hallucinated narration |
+| 52 | Alarm-Triggered Trace Burst | Event shape variant of #5 + #6; not separate surface |
+| 53 | Counterfactual Replay Slots | Valid but high scope; brainstorm follow-on to #6 after trace ships |
 
 ## Compounding Thread
 
 Ship order suggestion: **#1 + #2** (fast SSE enrichments) → **#6** (read model) → **#3 + #4 + #7** (UI surfaces) → **#5** (session health). Ideas #1–#4 compose into a single expandable **Grading Story Row** per post.
+
+**Continuation thread:** **#11 + #12** (digest + depth on trace API) → **#8** (shadow grading) + **#10** (policy stamp) → **#9** (HITL oversight events) → **#13** (timeline ghost receipt) → **#14** (regime dial for live demo control). #9 pairs with held-queue plan 005; #13 breaks sidebar-only observability assumption.

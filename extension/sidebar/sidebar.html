@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signal Density Filter</title>
+  <link rel="stylesheet" href="../shared/tokens.css" />
+  <link rel="stylesheet" href="../shared/components.css" />
+  <link rel="stylesheet" href="sidebar.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <h1>Signal Density</h1>
+      <p class="subtitle">Harness operator console</p>
+    </div>
+    <div class="header-status">
+      <span id="connection-status" class="connection-pill connecting" title="Connecting to harness…">
+        <span class="connection-dot" aria-hidden="true"></span>
+        <span id="connection-label">Connecting</span>
+      </span>
+      <div id="mode-badge" class="sdf-badge-pill live">live</div>
+    </div>
+  </header>
+
+  <section id="connection-fallback" class="connection-fallback" hidden aria-live="polite">
+    <p class="connection-fallback-title">Harness unreachable</p>
+    <p class="connection-fallback-hint">Run <code>npm start</code>, then boot the demo tape without touching the terminal.</p>
+    <button type="button" id="start-demo-btn" class="sdf-btn sdf-btn-primary">Start demo in replay</button>
+    <p id="start-demo-error" class="connection-fallback-error" hidden></p>
+  </section>
+
+  <section class="stats" aria-label="Pipeline stats">
+    <button type="button" class="stat stat-clickable" id="held-stat" aria-expanded="false" aria-controls="held-section">
+      <span class="label">Held</span>
+      <span id="held-count" class="value">0</span>
+    </button>
+    <div class="stat">
+      <span class="label">Decisions</span>
+      <span id="decision-count" class="value">0</span>
+    </div>
+    <button type="button" class="stat stat-clickable" id="hidden-stat" aria-expanded="false" aria-controls="hidden-section">
+      <span class="label">Hidden</span>
+      <span id="hidden-count" class="value">0</span>
+    </button>
+    <button type="button" class="stat stat-clickable" id="blocked-stat" aria-expanded="false" aria-controls="blocked-section">
+      <span class="label">Blocked</span>
+      <span id="blocked-count" class="value">0</span>
+    </button>
+  </section>
+
+  <section class="session-metrics" id="session-metrics" aria-label="Session metrics">
+    <div class="session-metrics-head">
+      <span class="session-metrics-title">Feed quieting</span>
+      <span id="ae1-badge" class="ae1-badge ae1-collecting">Collecting 0/30</span>
+    </div>
+    <div class="session-metrics-grid">
+      <div class="metric">
+        <span class="metric-label" title="Percent of scored posts hidden, blocked, or held for review">Quiet rate</span>
+        <span id="metric-filter-rate" class="metric-value">—</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label" title="Share of scored posts kept visible (SHOW / total)">Signal kept</span>
+        <span id="metric-snr" class="metric-value">—</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label" title="Posts hidden, blocked, or held out of all scored posts">Quieted</span>
+        <span id="metric-filtered" class="metric-value">0/0</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label" title="Posts kept visible in your feed">Shown</span>
+        <span id="metric-show" class="metric-value">0</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="grading-vitals" id="grading-vitals" aria-label="Agent grading vitals">
+    <div class="vital">
+      <span class="vital-label">Agent scored</span>
+      <span id="vital-scored" class="vital-value">0</span>
+    </div>
+    <div class="vital">
+      <span class="vital-label">LLM runs</span>
+      <span id="vital-llm" class="vital-value">0</span>
+    </div>
+    <div class="vital">
+      <span class="vital-label">Avg conf</span>
+      <span id="vital-confidence" class="vital-value">—</span>
+    </div>
+    <div class="vital">
+      <span class="vital-label">Δ disagreements</span>
+      <span id="vital-disagreements" class="vital-value">0</span>
+    </div>
+  </section>
+
+  <section class="panel-section panel-primary">
+    <h2>Agent Activity</h2>
+    <p class="section-hint">Live grading stream — expand any row for Agent · Cascade · Gates · Policy</p>
+    <ul id="decision-list" class="feed feed-agent" aria-live="polite"></ul>
+  </section>
+
+  <section class="panel-section held-section" id="held-section" hidden>
+    <h2 id="held-section-title">Held for review <span id="held-section-count">(0)</span></h2>
+    <p class="section-hint">Borderline posts awaiting your call — click a row to review on timeline</p>
+    <ul id="held-list" class="feed feed-filtered" aria-live="polite"></ul>
+    <p id="held-overflow" class="section-overflow" hidden></p>
+  </section>
+
+  <section class="panel-section hidden-section" id="hidden-section" hidden>
+    <h2>Hidden Posts</h2>
+    <p class="section-hint">Low-signal posts removed from timeline — click a row to view on timeline</p>
+    <ul id="filtered-list" class="feed feed-filtered" aria-live="polite"></ul>
+  </section>
+
+  <section class="panel-section blocked-section" id="blocked-section" hidden>
+    <h2>Blocked Posts</h2>
+    <p class="section-hint">Guardrail rejections — click a row to view on timeline</p>
+    <ul id="blocked-list" class="feed feed-filtered" aria-live="polite"></ul>
+  </section>
+
+  <section class="panel-section panel-collapsible" id="checkpoints-section">
+    <button type="button" class="section-toggle" id="checkpoints-toggle" aria-expanded="false" aria-controls="checkpoints-body">
+      <h2>Checkpoints</h2>
+      <span class="section-chevron" aria-hidden="true">▸</span>
+    </button>
+    <div id="checkpoints-body" class="section-body" hidden>
+      <p class="section-hint">Gate validation log — click to open Gates tab</p>
+      <ul id="checkpoint-list" class="feed feed-checkpoints" aria-live="polite"></ul>
+    </div>
+  </section>
+
+  <section class="panel-section panel-collapsible" id="alarms-section">
+    <button type="button" class="section-toggle" id="alarms-toggle" aria-expanded="true" aria-controls="alarms-body">
+      <h2>Alarms</h2>
+      <span class="section-chevron" aria-hidden="true">▾</span>
+    </button>
+    <div id="alarms-body" class="section-body">
+      <p class="section-hint">Pipeline health — click bundle link to investigate</p>
+      <ul id="alarm-list" class="feed" aria-live="polite"></ul>
+    </div>
+  </section>
+
+  <footer>
+    <button id="replay-btn" type="button" class="sdf-btn sdf-btn-primary">
+      Switch to Replay (Alt+Shift+R)
+    </button>
+  </footer>
+
+  <script src="../shared/session-metrics.js"></script>
+  <script src="grading-story-row.js"></script>
+  <script src="sidebar.js"></script>
+</body>
+</html>

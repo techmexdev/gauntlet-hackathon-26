@@ -1,0 +1,19 @@
+{
+  "name": "signal-density-filter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "harness",
+    "extension"
+  ],
+  "scripts": {
+    "test": "npm test --workspace=harness",
+    "start": "npm start --workspace=harness",
+    "seed:tape": "node scripts/seed-tape.js",
+    "replay": "node scripts/replay.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

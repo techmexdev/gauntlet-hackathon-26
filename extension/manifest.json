@@ -1,0 +1,63 @@
+{
+  "manifest_version": 3,
+  "name": "Signal Density Filter",
+  "version": "0.1.0",
+  "description": "Governed X.com timeline filter with harness pillars demo",
+  "permissions": ["storage", "sidePanel"],
+  "host_permissions": [
+    "https://x.com/*",
+    "https://twitter.com/*",
+    "http://localhost:3847/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "js": [
+        "shared/runtime.js",
+        "shared/session-metrics.js",
+        "shared/hud-anchor.js",
+        "shared/inject-styles.js",
+        "content/post-preview.js",
+        "shared/hold-reason.js",
+        "content/overlay.js",
+        "content/scraper.js",
+        "content/filter-ui.js",
+        "content/high-signal-tab.js",
+        "content/timeline-sort.js",
+        "content/quiet-ticker.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "side_panel": {
+    "default_path": "sidebar/sidebar.html"
+  },
+  "commands": {
+    "toggle-replay": {
+      "suggested_key": {
+        "default": "Alt+Shift+R",
+        "mac": "Alt+Shift+R"
+      },
+      "description": "Switch to replay mode"
+    }
+  },
+  "action": {
+    "default_title": "Open Signal Density Filter"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "shared/tokens.css",
+        "shared/components.css",
+        "shared/overlay.css",
+        "shared/high-signal.css",
+        "shared/timeline-sort.css",
+        "shared/quiet-ticker.css"
+      ],
+      "matches": ["https://x.com/*", "https://twitter.com/*"]
+    }
+  ]
+}

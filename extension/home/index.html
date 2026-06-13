@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>High signal tab strip fixture</title>
+    <link rel="stylesheet" href="../shared/tokens.css" />
+    <link rel="stylesheet" href="../shared/high-signal.css" />
+    <style>
+      body {
+        margin: 0;
+        background: #000;
+        color: #e7e9ea;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      [data-testid='primaryColumn'] {
+        max-width: 600px;
+        margin: 24px auto;
+        border: 1px solid #2f3336;
+      }
+
+      .fixture-scroll {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        overflow-x: auto;
+        padding: 0 8px;
+        min-height: 53px;
+        border-bottom: 1px solid #2f3336;
+        position: relative;
+      }
+
+      .fixture-column {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+      }
+
+      [role='tab'] {
+        display: inline-flex;
+        align-items: center;
+        padding: 16px;
+        font: 700 15px/20px inherit;
+        color: #71767b;
+        white-space: nowrap;
+        cursor: pointer;
+        position: relative;
+      }
+
+      [role='tab'][aria-selected='true'] {
+        color: #e7e9ea;
+      }
+
+      [role='tab'][aria-selected='true']::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 56px;
+        height: 4px;
+        border-radius: 9999px;
+        background: #1d9bf0;
+      }
+
+      #fixture-report {
+        padding: 16px;
+        font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: #8b98a5;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-testid="primaryColumn">
+      <div role="tablist" aria-label="Timeline tabs">
+        <div class="fixture-scroll">
+          <div class="fixture-column">
+            <div role="tab" aria-selected="false" tabindex="-1">For you</div>
+          </div>
+          <div role="tab" aria-selected="true" tabindex="0">Following</div>
+          <div aria-hidden="true" class="fixture-native-indicator" style="position:absolute;bottom:0;height:4px;width:56px;background:#1d9bf0"></div>
+          <div role="tab" aria-selected="false" tabindex="-1">Gpt/LLM/GenAI</div>
+          <div role="tab" aria-selected="false" tabindex="-1">AI High Signal</div>
+          <div role="tab" aria-selected="false" tabindex="-1">Chess</div>
+        </div>
+      </div>
+    </div>
+    <pre id="fixture-report">Running fixture…</pre>
+
+    <script>
+      history.replaceState(null, '', '/home');
+      window.chrome = {
+        storage: { session: { get: () => Promise.resolve({}), set: () => Promise.resolve() } },
+        runtime: { onMessage: { addListener: () => {} } },
+      };
+      window.sdfRuntime = {
+        isAvailable: () => true,
+        onInvalidate: () => {},
+        sendMessage: () => Promise.resolve([]),
+      };
+    </script>
+    <script src="../content/high-signal-tab.js"></script>
+    <script>
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const report = document.getElementById('fixture-report');
+          const row = document.querySelector('.fixture-scroll');
+          const forYou = [...document.querySelectorAll('[role="tab"]')].find((tab) =>
+            tab.textContent.trim().toLowerCase().startsWith('for you')
+          );
+          const highSignal = document.querySelector('.sdf-high-signal-tab');
+          const tops = [...row.children].map((child) => {
+            const tab = child.matches('[role="tab"], .sdf-high-signal-tab')
+              ? child
+              : child.querySelector('[role="tab"], .sdf-high-signal-tab');
+            return {
+              label: tab?.textContent?.trim() || child.className,
+              top: Math.round((tab || child).getBoundingClientRect().top),
+              parent: tab?.parentElement === row ? 'row' : tab?.parentElement?.className || 'nested',
+            };
+          });
+
+          const aligned = tops.every((entry) => entry.top === tops[0].top);
+          const order = [...row.children]
+            .map((child) => child.textContent?.trim() || child.className)
+            .join(' | ');
+
+          report.textContent = [
+            `aligned: ${aligned}`,
+            `forYouParent: ${forYou?.parentElement === row ? 'row' : forYou?.parentElement?.className}`,
+            `highSignalParent: ${highSignal?.parentElement === row ? 'row' : highSignal?.parentElement?.className}`,
+            `order: ${order}`,
+            `tops: ${JSON.stringify(tops)}`,
+          ].join('\n');
+
+          highSignal?.click();
+
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              const nativeSelected = [...document.querySelectorAll('[role="tab"]:not(.sdf-high-signal-tab)')]
+                .filter((tab) => tab.getAttribute('aria-selected') === 'true')
+                .map((tab) => tab.textContent.trim());
+              const indicatorHidden = document
+                .querySelector('.fixture-native-indicator')
+                ?.classList.contains('sdf-hs-native-indicator-hidden');
+              const selectionReport = [
+                `highSignalSelected: ${highSignal?.getAttribute('aria-selected')}`,
+                `stripCustomActive: ${row.classList.contains('sdf-hs-custom-active')}`,
+                `tablistCustomActive: ${document.querySelector('[role="tablist"]')?.classList.contains('sdf-hs-custom-active')}`,
+                `nativeSelected: ${nativeSelected.length ? nativeSelected.join(', ') : 'none'}`,
+                `indicatorHidden: ${indicatorHidden}`,
+              ].join('\n');
+              report.textContent += `\n\nafter click:\n${selectionReport}`;
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

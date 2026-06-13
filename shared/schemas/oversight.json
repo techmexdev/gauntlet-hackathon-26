@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "oversight.json",
+  "title": "Oversight",
+  "type": "object",
+  "required": [
+    "bundle_id",
+    "session_id",
+    "actor",
+    "prior",
+    "resolution",
+    "resolved_at"
+  ],
+  "properties": {
+    "bundle_id": { "type": "string", "minLength": 1 },
+    "session_id": { "type": "string", "minLength": 1 },
+    "actor": { "type": "string", "enum": ["operator"] },
+    "prior": { "type": "string", "enum": ["HOLD"] },
+    "resolution": { "type": "string", "enum": ["SHOW", "HIDE", "BLOCK"] },
+    "dwell_ms": { "type": "integer", "minimum": 0 },
+    "optional_note": { "type": "string" },
+    "author_handle": { "type": "string" },
+    "text_snippet": { "type": "string" },
+    "resolved_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}

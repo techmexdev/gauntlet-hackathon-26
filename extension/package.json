@@ -1,0 +1,6 @@
+{
+  "name": "extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Signal Density Filter Chrome MV3 extension"
+}

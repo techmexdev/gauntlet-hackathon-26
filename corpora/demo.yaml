@@ -1,0 +1,75 @@
+posts:
+  bait_ratio: 0.40
+  signal_ratio: 0.20
+  borderline_ratio: 0.15
+  personal_ratio: 0.15
+  promo_ratio: 0.10
+  total: 50
+
+bait_templates:
+  - "🔥🔥🔥 You won't BELIEVE what happened next! Like if you agree 👇"
+  - "Retweet if you love crypto! FREE AIRDROP dm me 🚀🚀🚀"
+  - "Hot take incoming 🧵 Follow for follow!!!"
+  - "Smash that like button!!! Giveaway ending soon!!!"
+
+signal_templates:
+  - "Fed held rates steady at 5.25%. According to WSJ, markets rallied 2% on the news. Full analysis: https://example.com/fed"
+  - "New research from MIT shows transformer efficiency gains plateau above 70B params. Data shows diminishing returns on pretraining scale."
+  - "Breaking: EU passes AI Act enforcement timeline. Companies have 18 months to comply with transparency requirements."
+
+borderline_templates:
+  - "Interesting thread on market structure changes. Some good points but hard to verify without sources."
+  - "My take on the latest policy shift — could go either way depending on implementation details."
+
+personal_templates:
+  - "Great coffee this morning. Ready for the day."
+  - "Happy birthday to my colleague! Hope you have a wonderful celebration."
+
+promo_templates:
+  - "Check out our new product launch! Sign up today for early access. Link in bio."
+  - "Subscribe to our newsletter for weekly updates on tech trends."
+
+authors:
+  - handle: tech_analyst
+    display: Tech Analyst
+  - handle: news_bot
+    display: News Wire
+  - handle: bait_bot_99
+    display: Engagement King
+  - handle: casual_user
+    display: Casual User
+  - handle: promo_co
+    display: Promo Co
+
+tool_beats:
+  author_history:
+    seed_posts:
+      - bundle_id: demo-tool-promo-seed-0
+        author: promo_co
+        text: "Check out our new product launch! Sign up today for early access. Link in bio."
+      - bundle_id: demo-tool-promo-seed-1
+        author: promo_co
+        text: "Subscribe to our newsletter for weekly updates on tech trends."
+      - bundle_id: demo-tool-promo-seed-2
+        author: promo_co
+        text: "Check out our new product launch! Sign up today for early access. Link in bio."
+    trigger_post:
+      bundle_id: demo-tool-promo-0
+      author: promo_co
+      text: "Check out our new product launch! Sign up today for early access. Link in bio."
+  url_trust:
+    trigger_post:
+      bundle_id: demo-tool-url-0
+      author: tech_analyst
+      text: "My take on the latest policy shift — could go either way depending on implementation details."
+      urls:
+        - https://example.com/fed
+  engagement_percentile:
+    trigger_post:
+      bundle_id: demo-tool-engagement-0
+      author: news_bot
+      text: "Interesting thread on market structure changes. Some good points but hard to verify without sources."
+      engagement:
+        likes: 12000
+        reposts: 800
+        replies: 120
